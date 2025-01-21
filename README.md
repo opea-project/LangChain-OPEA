@@ -18,17 +18,15 @@ pip install poetry && poetry install --with test
 
 To install the package from a pre-built wheel, run:
 
-```bash
-pip install dist/langchain_opea-0.1.0-py3-none-any.whl
-```
-
-### Install from PyPi
-
-> **Note:** Once the package is available on PyPi, you can install it using:
-
-```bash
-pip install -U langchain-opea
-```
+1. **Build the Wheels**: Ensure the wheels are built using Poetry.
+   ```bash
+   poetry build
+   ```
+   
+2. **Install via Wheel File**: Install the package using the generated wheel file.
+   ```bash
+   pip install dist/langchain_opea-0.1.0-py3-none-any.whl
+   ```
 
 ## Chat Models
 
