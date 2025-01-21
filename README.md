@@ -28,6 +28,8 @@ To install the package from a pre-built wheel, run:
    pip install dist/langchain_opea-0.1.0-py3-none-any.whl
    ```
 
+Additionally, you’ll need to run the OpenAI compatible model servers locally. Please refer to [these](./samples/README.md#1-starting-the-microservices-using-compose) instructions for guidance.
+
 ## Chat Models
 
 `ChatOPEA` class exposes OPENAI Compatible chat models from OPEA.
