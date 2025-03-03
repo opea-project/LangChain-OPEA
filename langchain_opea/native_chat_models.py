@@ -50,13 +50,16 @@ class ChatNative(BaseChatModel):
             args.use_hpu_graphs = True
             args.use_kv_cache = True
 
-            pipe = GaudiTextGenerationPipeline(
-                args,
-                logger, 
-                use_with_langchain=True
-            )
-            hfpipe = HuggingFacePipeline(pipeline=pipe)
-            model, _, tokenizer, _= initialize_model(args, logger)
+            if args.device == "hpu":
+                pipe = GaudiTextGenerationPipeline(
+                    args,
+                    logger, 
+                    use_with_langchain=True
+                )
+                hfpipe = HuggingFacePipeline(pipeline=pipe)
+                model, _, tokenizer, _= initialize_model(args, logger)
+            else:
+                raise NotImplementedError(f"Only support hpu device now, device {args.device} not supported.")
 
             chat_model = ChatNative(
                 temperature=0.1, 
