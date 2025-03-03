@@ -1,4 +1,4 @@
-"""Gaudi Chat Wrapper."""
+"""Native Chat Wrapper."""
 
 from typing import Any, AsyncIterator, Iterator, List, Optional
 
@@ -31,7 +31,7 @@ from langchain_huggingface.llms.huggingface_pipeline import HuggingFacePipeline
 
 DEFAULT_SYSTEM_PROMPT = """You are a helpful, respectful, and honest assistant."""
 
-class ChatGaudi(BaseChatModel):
+class ChatNative(BaseChatModel):
     """
     Wrapper for using LLMs run on Intel Gaudi as ChatModels.
 
@@ -41,9 +41,9 @@ class ChatGaudi(BaseChatModel):
     Example:
         .. code-block:: python
 
-            from langchain_community.chat_models import ChatGaudi
-            from pipeline import GaudiTextGenerationPipeline
-            from gaudiutils import initialize_model
+            from langchain_community.chat_models import ChatNative
+            from integrations.pipeline import GaudiTextGenerationPipeline
+            from integrations.gaudiutils import initialize_model
 
             args.model_name_or_path = "neo4j/text2cypher-gemma-2-9b-it-finetuned-2024v1"
             args.max_new_tokens = 512 
@@ -58,7 +58,7 @@ class ChatGaudi(BaseChatModel):
             hfpipe = HuggingFacePipeline(pipeline=pipe)
             model, _, tokenizer, _= initialize_model(args, logger)
 
-            chat_model = ChatGaudi(
+            chat_model = ChatNative(
                 temperature=0.1, 
                 llm=hfpipe, 
                 tokenizer=tokenizer
