@@ -28,6 +28,7 @@ from langchain_core.outputs import (
 from pydantic import model_validator
 from typing_extensions import Self
 from langchain_huggingface.llms.huggingface_pipeline import HuggingFacePipeline
+from pipeline import GaudiTextGenerationPipeline
 
 DEFAULT_SYSTEM_PROMPT = """You are a helpful, respectful, and honest assistant."""
 DEFAULT_MODEL_ID = "Intel/neural-chat-7b-v3-3"
