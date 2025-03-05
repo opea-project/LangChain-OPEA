@@ -1,7 +1,7 @@
 """Native Chat Wrapper."""
 
 from typing import Any, AsyncIterator, Iterator, List, Optional
-
+import logging
 from langchain_core._api.deprecation import deprecated
 from langchain_core.callbacks.manager import (
     AsyncCallbackManagerForLLMRun,
@@ -30,6 +30,70 @@ from typing_extensions import Self
 from langchain_huggingface.llms.huggingface_pipeline import HuggingFacePipeline
 
 DEFAULT_SYSTEM_PROMPT = """You are a helpful, respectful, and honest assistant."""
+DEFAULT_MODEL_ID = "Intel/neural-chat-7b-v3-3"
+logger = logging.getLogger(__name__)
+
+class AttributeContainer:
+    def __init__(self, **kwargs):
+        # Set attributes dynamically based on keyword arguments
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+
+
+args = AttributeContainer(
+    device="hpu",
+    model_name_or_path=DEFAULT_MODEL_ID,
+    bf16=True,
+    max_new_tokens=100,
+    max_input_tokens=0,
+    batch_size=1,
+    warmup=3,
+    n_iterations=5,
+    local_rank=0,
+    use_kv_cache=True,
+    use_hpu_graphs=True,
+    dataset_name=None,
+    column_name=None,
+    do_sample=False,
+    num_beams=1,
+    trim_logits=False,
+    seed=27,
+    profiling_warmup_steps=0,
+    profiling_steps=0,
+    profiling_record_shapes=False,
+    prompt=None,
+    bad_words=None,
+    force_words=None,
+    assistant_model=None,
+    peft_model=None,
+    token=None,
+    model_revision="main",
+    attn_softmax_bf16=False,
+    output_dir=None,
+    bucket_size=-1,
+    dataset_max_samples=-1,
+    limit_hpu_graphs=False,
+    reuse_cache=False,
+    verbose_workers=False,
+    simulate_dyn_prompt=None,
+    reduce_recompile=False,
+    use_flash_attention=False,
+    flash_attention_recompute=False,
+    flash_attention_causal_mask=False,
+    flash_attention_fast_softmax=False,
+    book_source=False,
+    torch_compile=False,
+    ignore_eos=True,
+    temperature=1.0,
+    top_p=1.0,
+    const_serialization_path=None,
+    csp=None,
+    disk_offload=False,
+    trust_remote_code=False,
+    quant_config=os.getenv("QUANT_CONFIG", ""),
+    num_return_sequences=1,
+    bucket_internal=False,
+)
 
 class ChatNative(BaseChatModel):
     """
@@ -42,30 +106,8 @@ class ChatNative(BaseChatModel):
         .. code-block:: python
 
             from langchain_community.chat_models import ChatNative
-            from integrations.pipeline import GaudiTextGenerationPipeline
-            from integrations.gaudiutils import initialize_model
 
-            args.model_name_or_path = "neo4j/text2cypher-gemma-2-9b-it-finetuned-2024v1"
-            args.max_new_tokens = 512 
-            args.use_hpu_graphs = True
-            args.use_kv_cache = True
-
-            if args.device == "hpu":
-                pipe = GaudiTextGenerationPipeline(
-                    args,
-                    logger, 
-                    use_with_langchain=True
-                )
-                hfpipe = HuggingFacePipeline(pipeline=pipe)
-                model, _, tokenizer, _= initialize_model(args, logger)
-            else:
-                raise NotImplementedError(f"Only support hpu device now, device {args.device} not supported.")
-
-            chat_model = ChatNative(
-                temperature=0.1, 
-                llm=hfpipe, 
-                tokenizer=tokenizer
-            )
+            chat_model = ChatNative(model_name="Intel/neural-chat-7b-v3-3")
 
     Adapted from: https://python.langchain.com/docs/integrations/chat/llama2_chat
     """
@@ -76,12 +118,27 @@ class ChatNative(BaseChatModel):
     system_message: SystemMessage = SystemMessage(content=DEFAULT_SYSTEM_PROMPT)
     tokenizer: Any = None
     model_id: Optional[str] = None
+    device: Optional[str] = "hpu"
+    model_name: str = Field(alias="model", default=DEFAULT_MODEL_ID)
+
     streaming: bool = False
 
-    def __init__(self, tokenizer: Any, **kwargs: Any):
+    def __init__(self, **kwargs: Any):
         super().__init__(**kwargs)
 
-        self.tokenizer = tokenizer
+        args.model_name_or_path = self.model_name
+        if self.device == "hpu":
+            pipe = GaudiTextGenerationPipeline(
+                args,
+                logger,
+                use_with_langchain=True
+            )
+            hfpipe = HuggingFacePipeline(pipeline=pipe)
+            self.llm = hfpipe
+            self.tokenizer = pipe.tokenizer
+        else:
+            raise NotImplementedError(f"Only support hpu device now, device {self.device} not supported.")
+
 
     @model_validator(mode="after")
     def validate_llm(self) -> Self:
