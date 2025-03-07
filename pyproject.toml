@@ -24,6 +24,8 @@ langchain-openai = ">=0.2.14,<0.3"
 langchain-core = ">=0.3.29,<0.4"
 requests = ">=2,<3"
 aiohttp = ">=3.9.1,<4"
+langchain-huggingface = "^0.1.2"
+optimum-habana = "^1.15.0"
 
 [tool.coverage.run]
 omit = ["tests/*"]

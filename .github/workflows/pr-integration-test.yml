@@ -1,0 +1,68 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+name: Integration-test
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, reopened, ready_for_review, synchronize]
+    #paths:
+    #  - langchain_opea/**
+    #  - tests/unit_tests/**
+    #  - .github/workflows/pr-integration-test.yml
+    #  - "!**.md"
+
+# If there is a new commit, the previous jobs will be canceled
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  Integration-test:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    if: ${{ !github.event.pull_request.draft }}
+    steps:
+      - name: Clean Up Working Directory
+        run: |
+          sudo rm -rf ${{github.workspace}}/* || true
+          cid=$(docker ps -aq --filter "name=test-comps-*")
+          if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
+          docker system prune -f
+
+      - name: Checkout out Repo
+        uses: actions/checkout@v4
+        with:
+          ref: "refs/pull/${{ github.event.number }}/merge"
+
+      - name: Run Integration E2E Test
+        run: |
+          cd tests
+          timeout 60m bash -x test_integration_langchain_opea.sh
+
+      - name: Run Integration Python Test
+        run: |
+          source ${{github.workspace}}/temp_env/bin/activate
+          cd tests/integration_tests
+          software_path=$(python -c 'import langchain_opea; print(langchain_opea.__path__[0])')
+          find . -name "test*.py" | sed "s,\.\/,python -m pytest --cov=\"${software_path}\" --cov-report term --cov-report xml:coverage.xml --cov-append -vs --disable-warnings ,g" > run.sh
+          bash run.sh 2>&1 | tee ut.log
+
+      - uses: codecov/codecov-action@v5.4.0
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Clean up container
+        if: cancelled() || failure()
+        run: |
+          cid=$(docker ps -aq --filter "name=test-comps-*")
+          if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
+          docker system prune -f
+
+      - name: Publish pipeline artifact
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.log_name }}
+          path: ${{ github.workspace }}/tests/*.log
