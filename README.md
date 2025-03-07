@@ -22,7 +22,6 @@ To install the package from a pre-built wheel, run:
    ```bash
    poetry build
    ```
-   
 2. **Install via Wheel File**: Install the package using the generated wheel file.
    ```bash
    pip install dist/langchain_opea-0.1.0-py3-none-any.whl

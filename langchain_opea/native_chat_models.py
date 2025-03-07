@@ -1,39 +1,25 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
 """Native Chat Wrapper."""
 
-from typing import Any, AsyncIterator, Iterator, List, Optional
 import logging
 import os
+from typing import Any, AsyncIterator, Iterator, List, Optional
+
 from langchain_core._api.deprecation import deprecated
-from langchain_core.callbacks.manager import (
-    AsyncCallbackManagerForLLMRun,
-    CallbackManagerForLLMRun,
-)
-from langchain_core.language_models.chat_models import (
-    BaseChatModel,
-    agenerate_from_stream,
-    generate_from_stream,
-)
-from langchain_core.messages import (
-    AIMessage,
-    AIMessageChunk,
-    BaseMessage,
-    HumanMessage,
-    SystemMessage,
-)
-from langchain_core.outputs import (
-    ChatGeneration,
-    ChatGenerationChunk,
-    ChatResult,
-    LLMResult,
-)
-from pydantic import model_validator, Field
-from typing_extensions import Self
+from langchain_core.callbacks.manager import AsyncCallbackManagerForLLMRun, CallbackManagerForLLMRun
+from langchain_core.language_models.chat_models import BaseChatModel, agenerate_from_stream, generate_from_stream
+from langchain_core.messages import AIMessage, AIMessageChunk, BaseMessage, HumanMessage, SystemMessage
+from langchain_core.outputs import ChatGeneration, ChatGenerationChunk, ChatResult, LLMResult
 from langchain_huggingface.llms.huggingface_pipeline import HuggingFacePipeline
 from pipeline import GaudiTextGenerationPipeline
+from pydantic import model_validator, Field
+from typing_extensions import Self
 
 DEFAULT_SYSTEM_PROMPT = """You are a helpful, respectful, and honest assistant."""
 DEFAULT_MODEL_ID = "Intel/neural-chat-7b-v3-3"
 logger = logging.getLogger(__name__)
+
 
 class AttributeContainer:
     def __init__(self, **kwargs):
@@ -97,9 +83,9 @@ args = AttributeContainer(
     bucket_internal=False,
 )
 
+
 class ChatNative(BaseChatModel):
-    """
-    Wrapper for using LLMs run on Intel Gaudi as ChatModels.
+    """Wrapper for using LLMs run on Intel Gaudi as ChatModels.
 
     To use, you should have the `mlflow[genai]` python package installed.
     For more information, see https://mlflow.org/docs/latest/llms/deployments.
@@ -115,8 +101,7 @@ class ChatNative(BaseChatModel):
     """
 
     llm: Any
-    """LLM, must be of type HuggingFacePipeline
-        """
+    """LLM, must be of type HuggingFacePipeline."""
     system_message: SystemMessage = SystemMessage(content=DEFAULT_SYSTEM_PROMPT)
     tokenizer: Any = None
     model_id: Optional[str] = None
@@ -130,17 +115,12 @@ class ChatNative(BaseChatModel):
 
         args.model_name_or_path = self.model_name
         if self.device == "hpu":
-            pipe = GaudiTextGenerationPipeline(
-                args,
-                logger,
-                use_with_langchain=True
-            )
+            pipe = GaudiTextGenerationPipeline(args, logger, use_with_langchain=True)
             hfpipe = HuggingFacePipeline(pipeline=pipe)
             self.llm = hfpipe
             self.tokenizer = pipe.tokenizer
         else:
             raise NotImplementedError(f"Only support hpu device now, device {self.device} not supported.")
-
 
     @model_validator(mode="after")
     def validate_llm(self) -> Self:
@@ -148,10 +128,7 @@ class ChatNative(BaseChatModel):
             self.llm,
             (HuggingFacePipeline),
         ):
-            raise TypeError(
-                "Expected llm to be one of HuggingFacePipeline"
-                f", received {type(self.llm)}"
-            )
+            raise TypeError("Expected llm to be one of HuggingFacePipeline" f", received {type(self.llm)}")
         return self
 
     def _stream(
@@ -193,15 +170,11 @@ class ChatNative(BaseChatModel):
         **kwargs: Any,
     ) -> ChatResult:
         if self.streaming:
-            stream_iter = self._stream(
-                messages, stop=stop, run_manager=run_manager, **kwargs
-            )
+            stream_iter = self._stream(messages, stop=stop, run_manager=run_manager, **kwargs)
             return generate_from_stream(stream_iter)
 
         llm_input = self._to_chat_prompt(messages)
-        llm_result = self.llm._generate(
-            prompts=[llm_input], stop=stop, run_manager=run_manager, **kwargs
-        )
+        llm_result = self.llm._generate(prompts=[llm_input], stop=stop, run_manager=run_manager, **kwargs)
         return self._to_chat_result(llm_result)
 
     async def _agenerate(
@@ -212,15 +185,11 @@ class ChatNative(BaseChatModel):
         **kwargs: Any,
     ) -> ChatResult:
         if self.streaming:
-            stream_iter = self._astream(
-                messages, stop=stop, run_manager=run_manager, **kwargs
-            )
+            stream_iter = self._astream(messages, stop=stop, run_manager=run_manager, **kwargs)
             return await agenerate_from_stream(stream_iter)
 
         llm_input = self._to_chat_prompt(messages)
-        llm_result = await self.llm._agenerate(
-            prompts=[llm_input], stop=stop, run_manager=run_manager, **kwargs
-        )
+        llm_result = await self.llm._agenerate(prompts=[llm_input], stop=stop, run_manager=run_manager, **kwargs)
         return self._to_chat_result(llm_result)
 
     def _to_chat_prompt(
@@ -236,9 +205,7 @@ class ChatNative(BaseChatModel):
 
         messages_dicts = [self._to_chatml_format(m) for m in messages]
 
-        return self.tokenizer.apply_chat_template(
-            messages_dicts, tokenize=False, add_generation_prompt=True
-        )
+        return self.tokenizer.apply_chat_template(messages_dicts, tokenize=False, add_generation_prompt=True)
 
     def _to_chatml_format(self, message: BaseMessage) -> dict:
         """Convert LangChain message to ChatML format."""
@@ -259,16 +226,11 @@ class ChatNative(BaseChatModel):
         chat_generations = []
 
         for g in llm_result.generations[0]:
-            chat_generation = ChatGeneration(
-                message=AIMessage(content=g.text), generation_info=g.generation_info
-            )
+            chat_generation = ChatGeneration(message=AIMessage(content=g.text), generation_info=g.generation_info)
             chat_generations.append(chat_generation)
 
-        return ChatResult(
-            generations=chat_generations, llm_output=llm_result.llm_output
-        )
+        return ChatResult(generations=chat_generations, llm_output=llm_result.llm_output)
 
     @property
     def _llm_type(self) -> str:
         return "gaudi-chat-wrapper"
-

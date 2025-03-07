@@ -5,14 +5,16 @@ name: Trellix Command Line Scanner
 
 on:
   workflow_dispatch:
-  pull_request:
-    branches: [main]
-  schedule:
-    - cron: "35 1 * * 6"
+    inputs:
+      node:
+        default: trellix
+        required: false
+        type: string
+        description: "Action runner node label"
 
 jobs:
   Trellix:
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.node }}
     steps:
       - name: Clean Up Working Directory
         run: sudo rm -rf ${{github.workspace}}/*
