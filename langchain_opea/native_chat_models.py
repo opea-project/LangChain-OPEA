@@ -13,7 +13,7 @@ from langchain_core.messages import AIMessage, AIMessageChunk, BaseMessage, Huma
 from langchain_core.outputs import ChatGeneration, ChatGenerationChunk, ChatResult, LLMResult
 from langchain_huggingface.llms.huggingface_pipeline import HuggingFacePipeline
 from pipeline import GaudiTextGenerationPipeline
-from pydantic import model_validator, Field
+from pydantic import Field, model_validator
 from typing_extensions import Self
 
 DEFAULT_SYSTEM_PROMPT = """You are a helpful, respectful, and honest assistant."""

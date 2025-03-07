@@ -4,11 +4,11 @@
 import argparse
 import copy
 import glob
+import logging
 import os
 import shutil
 import tempfile
 import time
-import logging
 from pathlib import Path
 
 import torch
@@ -28,8 +28,8 @@ from optimum.habana.utils import (
 from transformers import AutoConfig, AutoModelForCausalLM, AutoTokenizer
 from transformers.utils import check_min_version
 
-
 logger = logging.getLogger(__name__)
+
 
 def setup_parser(parser):
     # Arguments management
