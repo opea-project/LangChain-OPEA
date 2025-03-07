@@ -12,7 +12,7 @@ on:
 
 jobs:
   Trellix:
-    runs-on: trellix
+    runs-on: ubuntu-latest
     steps:
       - name: Clean Up Working Directory
         run: sudo rm -rf ${{github.workspace}}/*

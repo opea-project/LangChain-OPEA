@@ -5,6 +5,7 @@ import argparse
 import shutil
 import tempfile
 import time
+import logging
 from pathlib import Path
 
 import torch
@@ -24,6 +25,8 @@ from optimum.habana.utils import (
     get_habana_frameworks_version,
     set_seed,
 )
+
+logger = logging.getLogger(__name__)
 
 def setup_parser(parser):
     # Arguments management

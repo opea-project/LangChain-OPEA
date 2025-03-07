@@ -2,6 +2,7 @@
 
 from typing import Any, AsyncIterator, Iterator, List, Optional
 import logging
+import os
 from langchain_core._api.deprecation import deprecated
 from langchain_core.callbacks.manager import (
     AsyncCallbackManagerForLLMRun,
@@ -25,7 +26,7 @@ from langchain_core.outputs import (
     ChatResult,
     LLMResult,
 )
-from pydantic import model_validator
+from pydantic import model_validator, Field
 from typing_extensions import Self
 from langchain_huggingface.llms.huggingface_pipeline import HuggingFacePipeline
 from pipeline import GaudiTextGenerationPipeline
