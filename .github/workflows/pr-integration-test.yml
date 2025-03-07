@@ -43,6 +43,7 @@ jobs:
 
       - name: Run Integration Python Test
         run: |
+          source ${{github.workspace}}/temp_env/bin/activate
           cd tests/integration_tests
           software_path=$(python -c 'import langchain_opea; print(langchain_opea.__path__[0])')
           find . -name "test*.py" | sed "s,\.\/,python -m pytest --cov=\"${software_path}\" --cov-report term --cov-report xml:coverage.xml --cov-append -vs --disable-warnings ,g" > run.sh

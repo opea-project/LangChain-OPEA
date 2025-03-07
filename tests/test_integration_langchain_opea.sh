@@ -11,11 +11,11 @@ LOG_PATH="$WORKPATH/tests"
 function build_integration_package() {
     cd $WORKPATH
     echo $(pwd)
-    python3 -m venv /tmp/temp_env
-    source /tmp/temp_env/bin/activate
+    python3 -m venv $WORKPATH/temp_env
+    source $WORKPATH/temp_env/bin/activate
     pip install --upgrade --force-reinstall poetry==1.8.4
-    poetry lock
     poetry install --with test
+    pip list | grep langchain
     if [ $? -ne 0 ]; then
         echo "Package installation fail"
         exit 1
@@ -46,7 +46,7 @@ function start_service() {
     fi
 
     until [[ "$n" -ge 100 ]] || [[ $ready == true ]]; do
-        docker logs test-comps-integration-llm-tgi-endpoint >> $LOG_PATH/test-comps-vllm-service.log
+        docker logs test-comps-integration-llm-tgi-endpoint 2>&1 | tee -a $LOG_PATH/test-comps-vllm-service.log
         n=$((n+1))
         if grep -q Connected $LOG_PATH/test-comps-vllm-service.log; then
             break
@@ -82,7 +82,7 @@ function validate_service() {
         echo "Result correct."
     else
         echo "Result wrong. Received was $result"
-        docker logs test-comps-llm-tgi-endpoint >> ${LOG_PATH}/llm-tgi.log
+        docker logs test-comps-llm-tgi-endpoint 2>&1 | tee -a ${LOG_PATH}/llm-tgi.log
         exit 1
     fi
 
