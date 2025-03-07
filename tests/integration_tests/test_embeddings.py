@@ -4,8 +4,9 @@
 
 from typing import Type
 
-from langchain_opea.embeddings import OPEAEmbeddings
 from langchain_tests.integration_tests import EmbeddingsIntegrationTests
+
+from langchain_opea.embeddings import OPEAEmbeddings
 
 OPEA_API_BASE = "http://localhost:6006/v1"
 OPEA_API_KEY = "my_secret_value"
