@@ -13,7 +13,7 @@ Data Privacy: By running models locally, you ensure that sensitive data does not
 
 Reduced Latency: Local inference eliminates the need for network calls to external services, resulting in faster response times.
 
-Flexibility: You can bring your own OPEA validated [models](https://github.com/opea-project/GenAIComps/blob/main/comps/llms/text-generation/README.md#validated-llm-models) and switch between different models as needed, tailoring the solution to your specific requirements.
+Flexibility: You can bring your own OPEA validated [models](https://github.com/opea-project/GenAIComps/blob/main/comps/llms/src/text-generation/README.md#validated-llm-models) and switch between different models as needed, tailoring the solution to your specific requirements.
 
 To run the services, set up the environment variables:
 
