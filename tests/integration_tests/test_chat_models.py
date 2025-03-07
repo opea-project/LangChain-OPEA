@@ -6,8 +6,9 @@ from typing import Type
 
 import pytest
 from langchain_core.language_models import BaseChatModel
-from langchain_opea.chat_models import ChatOPEA
 from langchain_tests.integration_tests import ChatModelIntegrationTests
+
+from langchain_opea.chat_models import ChatOPEA
 
 OPEA_API_BASE = "http://localhost:9009/v1"
 OPEA_API_KEY = "my_secret_value"
