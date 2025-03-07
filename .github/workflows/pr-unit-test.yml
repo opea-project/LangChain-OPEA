@@ -1,0 +1,54 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+name: Unit-test
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, reopened, ready_for_review, synchronize]
+    #paths:
+    #  - langchain_opea/**
+    #  - tests/unit_tests/**\
+    #  - .github/workflows/pr-unit-test.yml
+    #  - "!**.md"
+
+# If there is a new commit, the previous jobs will be canceled
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  Unit-test:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    if: ${{ !github.event.pull_request.draft }}
+    steps:
+      - name: Checkout out Repo
+        uses: actions/checkout@v4
+        with:
+          ref: "refs/pull/${{ github.event.number }}/merge"
+      
+      - name: Setup Env
+        run: |
+          cd ${{ github.workspace }}
+          pip install poetry && poetry lock && poetry install --with test
+
+      - name: Run Unit test
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          cd ${{ github.workspace }}/tests/unit_tests
+          software_path=$(python -c 'import langchain_opea; print(langchain_opea.__path__[0])')
+          find . -name "test*.py" | sed "s,\.\/,python -m pytest --cov=\"${software_path}\" --cov-report term --cov-report xml:coverage.xml --cov-append -vs --disable-warnings ,g" > run.sh
+          bash run.sh 2>&1 | tee ut.log
+
+      - uses: codecov/codecov-action@v5.4.0
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Publish pipeline artifact
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          path: ${{ github.workspace }}/tests/*.log

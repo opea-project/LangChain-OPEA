@@ -14,6 +14,7 @@ function build_integration_package() {
     python3 -m venv /tmp/temp_env
     source /tmp/temp_env/bin/activate
     pip install --upgrade --force-reinstall poetry==1.8.4
+    poetry lock
     poetry install --with test
     if [ $? -ne 0 ]; then
         echo "Package installation fail"
