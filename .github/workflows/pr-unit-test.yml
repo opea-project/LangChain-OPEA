@@ -33,12 +33,14 @@ jobs:
         run: |
           cd ${{ github.workspace }}
           pip install poetry && poetry lock && poetry install --with test
+          pip list | grep langchain
 
       - name: Run Unit test
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
           cd ${{ github.workspace }}/tests/unit_tests
+          pip list | grep langchain
           software_path=$(python -c 'import langchain_opea; print(langchain_opea.__path__[0])')
           find . -name "test*.py" | sed "s,\.\/,python -m pytest --cov=\"${software_path}\" --cov-report term --cov-report xml:coverage.xml --cov-append -vs --disable-warnings ,g" > run.sh
           bash run.sh 2>&1 | tee ut.log
