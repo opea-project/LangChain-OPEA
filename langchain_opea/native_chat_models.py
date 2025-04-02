@@ -12,7 +12,7 @@ from langchain_core.language_models.chat_models import BaseChatModel, agenerate_
 from langchain_core.messages import AIMessage, AIMessageChunk, BaseMessage, HumanMessage, SystemMessage
 from langchain_core.outputs import ChatGeneration, ChatGenerationChunk, ChatResult, LLMResult
 from langchain_huggingface.llms.huggingface_pipeline import HuggingFacePipeline
-from pipeline import GaudiTextGenerationPipeline
+from langchain_opea.integrations.pipeline import GaudiTextGenerationPipeline
 from pydantic import Field, model_validator
 from typing_extensions import Self
 
