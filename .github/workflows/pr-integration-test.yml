@@ -7,11 +7,11 @@ on:
   pull_request_target:
     branches: [main]
     types: [opened, reopened, ready_for_review, synchronize]
-    #paths:
-    #  - langchain_opea/**
-    #  - tests/unit_tests/**
-    #  - .github/workflows/pr-integration-test.yml
-    #  - "!**.md"
+    paths:
+      - langchain_opea/**
+      - tests/unit_tests/**
+      - .github/workflows/pr-integration-test.yml
+      - "!**.md"
 
 # If there is a new commit, the previous jobs will be canceled
 concurrency:
