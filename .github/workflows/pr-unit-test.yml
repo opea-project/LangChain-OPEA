@@ -4,7 +4,7 @@
 name: Unit-test
 
 on:
-  pull_request:
+  pull_request_target:
     branches: [main]
     types: [opened, reopened, ready_for_review, synchronize]
     #paths:
