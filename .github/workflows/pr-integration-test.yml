@@ -9,7 +9,8 @@ on:
     types: [opened, reopened, ready_for_review, synchronize]
     paths:
       - langchain_opea/**
-      - tests/unit_tests/**
+      - tests/integration_tests/**
+      - tests/test_integration*
       - .github/workflows/pr-integration-test.yml
       - "!**.md"
 
