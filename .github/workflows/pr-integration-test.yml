@@ -21,7 +21,7 @@ concurrency:
 
 jobs:
   Integration-test:
-    runs-on: ubuntu-latest
+    runs-on: xeon-spr
     continue-on-error: true
     if: ${{ !github.event.pull_request.draft }}
     steps:
