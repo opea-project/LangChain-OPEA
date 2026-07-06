@@ -36,6 +36,7 @@ class OPEAEmbeddings(OpenAIEmbeddings):
 
     model_name: str = Field(alias="model")
     """Model name to use."""
+
     opea_api_key: Optional[SecretStr] = Field(
         alias="api_key",
         default_factory=secret_from_env("OPEA_API_KEY", default=None),
@@ -44,6 +45,7 @@ class OPEAEmbeddings(OpenAIEmbeddings):
 
     Automatically read from env variable `OPEA_API_KEY` if not provided.
     """
+
     opea_api_base: str = Field(default="https://localhost:6006/v1/")
     """Base URL path for API requests."""
 
