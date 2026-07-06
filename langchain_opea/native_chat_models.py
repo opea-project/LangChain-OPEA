@@ -102,6 +102,7 @@ class ChatNative(BaseChatModel):
 
     llm: Any
     """LLM, must be of type HuggingFacePipeline."""
+
     system_message: SystemMessage = SystemMessage(content=DEFAULT_SYSTEM_PROMPT)
     tokenizer: Any = None
     model_id: Optional[str] = None
@@ -209,7 +210,6 @@ class ChatNative(BaseChatModel):
 
     def _to_chatml_format(self, message: BaseMessage) -> dict:
         """Convert LangChain message to ChatML format."""
-
         if isinstance(message, SystemMessage):
             role = "system"
         elif isinstance(message, AIMessage):
